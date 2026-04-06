@@ -1,0 +1,6 @@
+import { devices } from "@/lib/fakeData";
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json(devices);
+}
