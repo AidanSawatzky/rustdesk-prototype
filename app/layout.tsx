@@ -39,6 +39,7 @@ export default function RootLayout({
             <aside className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
               {/* Logo / Title */}
               <div className="p-6 border-b border-gray-800">
+                <h1 className = "text-2xl font-bold text-white">TTG</h1>
                 <h1 className="text-xl font-bold text-white tracking-wide">
                   RustDesk
                 </h1>
@@ -48,8 +49,9 @@ export default function RootLayout({
               {/* Navigation */}
               <nav className="flex flex-col gap-2 p-4">
                 {navItem("/dashboard", "Dashboard")}
-                {navItem("/address-book", "Address Books")}
+                {navItem("/roles", "Roles")}
                 {navItem("/sessions", "Sessions")}
+                {navItem("/users", "Users")}
               </nav>
 
               {/* Bottom (Logout) */}

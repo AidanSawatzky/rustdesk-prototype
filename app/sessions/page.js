@@ -6,7 +6,6 @@ export default function SessionsPage() {
   const [selectedSession, setSelectedSession] = useState(null);
   const [now, setNow] = useState(Date.now());
 
-  // 🔥 Fake data with startTime
   useEffect(() => {
     setSessions([
       {
@@ -23,7 +22,7 @@ export default function SessionsPage() {
       {
         id: 2,
         device: "Laptop",
-        user: "Elliot",
+        user: "Bilal",
         active: false,
         startTime: Date.now() - 1000 * 60 * 45,
         duration: "45m",
@@ -34,12 +33,9 @@ export default function SessionsPage() {
     ]);
   }, []);
 
-  // ⏱️ Live ticking timer
+  // ⏱️ Live ticking
   useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-
+    const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -57,82 +53,86 @@ export default function SessionsPage() {
   );
 
   return (
-    <div>
+    <div className="space-y-6">
       {/* HEADER */}
-      <h1 className="text-3xl font-semibold tracking-tight mb-1">
-        Sessions
-      </h1>
-      <p className="text-gray-400 mb-6">
-        Monitor remote access sessions and activity
-      </p>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Session Monitor
+        </h1>
+        <p className="text-gray-500 text-sm">
+          Live remote activity stream
+        </p>
+      </div>
 
-      {/* STATS */}
-      <div className="grid grid-cols-3 gap-6 mb-6">
-        <StatCard title="Active Sessions" value={activeCount} />
-        <StatCard title="Total Sessions" value={sessions.length} />
-        <StatCard
-          title="Total Transfers"
+      {/* METRICS */}
+      <div className="grid grid-cols-3 gap-4">
+        <MetricCard label="Active Sessions" value={activeCount} accent="green" />
+        <MetricCard label="Total Sessions" value={sessions.length} accent="blue" />
+        <MetricCard
+          label="Transfers"
           value={totalTransfers}
+          accent="purple"
           onClick={() => setSelectedSession("ALL")}
         />
       </div>
 
-      {/* SESSION LIST */}
-      <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-5 shadow-lg">
-        <h2 className="text-lg mb-4">Recent Sessions</h2>
+      {/* SESSION STREAM */}
+      <div className="bg-[#0b0f14] border border-white/5 rounded-xl p-4">
+        <p className="text-xs text-gray-500 uppercase mb-3">
+          Live Sessions
+        </p>
 
-        <div className="space-y-3">
+        <div className="divide-y divide-white/5">
           {sessions.map((s) => (
             <div
               key={s.id}
-              className="flex justify-between items-center bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition"
+              className="flex justify-between items-center py-3 px-2 text-sm hover:bg-white/5 rounded-lg transition"
             >
               {/* LEFT */}
               <div>
-                <p className="font-medium">
-                  {s.device} • {s.user}
+                <p className="text-gray-200">
+                  {s.device} <span className="text-gray-500">• {s.user}</span>
                 </p>
 
-                <p className="text-xs text-gray-400 flex items-center gap-2">
-                  Duration:
-                  <span className="font-mono transition-all">
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className="font-mono">
                     {s.active
                       ? formatDuration(s.startTime)
                       : s.duration}
                   </span>
 
-                  {/* 🔥 PULSING DOT */}
+                  {/* 🟢 PULSE */}
                   {s.active && (
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      <span className="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-70"></span>
+                      <span className="relative rounded-full h-2 w-2 bg-green-400 shadow-[0_0_6px_#4ade80]"></span>
                     </span>
                   )}
-                </p>
+                </div>
               </div>
 
               {/* RIGHT */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
+                {/* STATUS */}
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    s.active
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-gray-500/20 text-gray-400"
+                  className={`text-xs ${
+                    s.active ? "text-green-400" : "text-gray-500"
                   }`}
                 >
-                  {s.active ? "Active" : "Completed"}
+                  {s.active ? "ACTIVE" : "ENDED"}
                 </span>
 
+                {/* ACTIONS */}
                 <button
                   onClick={() => setSelectedSession(s)}
-                  className="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-lg text-sm transition"
+                  className="text-xs px-2 py-1 rounded-md bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 transition"
                 >
-                  View Transfers
+                  Inspect
                 </button>
 
                 {s.active && (
-                  <button className="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg text-sm transition">
-                    End
+                  <button className="text-xs px-2 py-1 rounded-md bg-red-600/20 hover:bg-red-600/40 text-red-400 transition">
+                    Terminate
                   </button>
                 )}
               </div>
@@ -153,17 +153,25 @@ export default function SessionsPage() {
   );
 }
 
-/* STAT CARD */
-function StatCard({ title, value, onClick }) {
+/* METRIC CARD */
+function MetricCard({ label, value, accent, onClick }) {
+  const colors = {
+    green: "text-green-400",
+    blue: "text-blue-400",
+    purple: "text-purple-400",
+  };
+
   return (
     <div
       onClick={onClick}
-      className={`bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-5 shadow-lg ${
-        onClick ? "cursor-pointer hover:bg-white/10 transition" : ""
+      className={`bg-[#0b0f14] border border-white/5 rounded-xl p-4 ${
+        onClick ? "cursor-pointer hover:bg-white/5 transition" : ""
       }`}
     >
-      <p className="text-sm text-gray-400">{title}</p>
-      <p className="text-2xl font-semibold mt-1">{value}</p>
+      <p className="text-xs text-gray-500 uppercase">{label}</p>
+      <p className={`text-2xl font-semibold mt-1 ${colors[accent]}`}>
+        {value}
+      </p>
     </div>
   );
 }
@@ -181,37 +189,39 @@ function TransferModal({ session, sessions, onClose }) {
       : session.transfers;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="w-full max-w-2xl bg-gray-900 border border-white/10 rounded-2xl p-6 shadow-xl">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="w-full max-w-xl bg-[#0b0f14] border border-white/10 rounded-xl p-5">
         
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Transfer Details</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <h2 className="text-sm uppercase text-gray-400">
+            Transfer Details
+          </h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-white">
             ✕
           </button>
         </div>
 
-        <div className="space-y-3 max-h-96 overflow-auto">
+        <div className="space-y-2 max-h-80 overflow-auto text-sm">
           {transfers.map((t, i) => (
             <div
               key={i}
-              className="flex justify-between items-center bg-white/5 border border-white/10 p-3 rounded-lg"
+              className="flex justify-between items-center px-2 py-2 rounded-md hover:bg-white/5"
             >
               <div>
-                <p className="font-medium">{t.name}</p>
-                <p className="text-xs text-gray-400">
+                <p className="text-gray-200">{t.name}</p>
+                <p className="text-xs text-gray-500">
                   {t.type} • {t.size}
                 </p>
               </div>
 
               <span
-                className={`text-xs px-2 py-1 rounded-full ${
+                className={`text-xs ${
                   t.direction === "upload"
-                    ? "bg-blue-500/20 text-blue-400"
-                    : "bg-purple-500/20 text-purple-400"
+                    ? "text-blue-400"
+                    : "text-purple-400"
                 }`}
               >
-                {t.direction}
+                {t.direction.toUpperCase()}
               </span>
             </div>
           ))}
