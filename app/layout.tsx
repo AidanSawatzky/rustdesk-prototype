@@ -49,9 +49,10 @@ export default function RootLayout({
               {/* Navigation */}
               <nav className="flex flex-col gap-2 p-4">
                 {navItem("/dashboard", "Dashboard")}
+                {navItem("/devices", "Devices")}
+                {navItem("/users", "Users")}
                 {navItem("/roles", "Roles")}
                 {navItem("/sessions", "Sessions")}
-                {navItem("/users", "Users")}
               </nav>
 
               {/* Bottom (Logout) */}
