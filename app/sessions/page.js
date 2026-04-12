@@ -5,39 +5,185 @@ export default function SessionsPage() {
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [now, setNow] = useState(Date.now());
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setSessions([
-      {
-        id: 1,
-        device: "Studio-PC",
-        user: "Admin",
-        active: true,
-        startTime: Date.now() - 1000 * 60 * 12,
-        transfers: [
-          { name: "track.wav", size: "5MB", type: "audio", direction: "upload" },
-          { name: "cover.png", size: "2MB", type: "image", direction: "download" },
-        ],
-      },
-      {
-        id: 2,
-        device: "Laptop",
-        user: "Bilal",
-        active: false,
-        startTime: Date.now() - 1000 * 60 * 45,
-        duration: "45m",
-        transfers: [
-          { name: "project.zip", size: "20MB", type: "archive", direction: "upload" },
-        ],
-      },
-    ]);
+    const saved = localStorage.getItem("sessions");
+
+    if (saved) {
+      setSessions(JSON.parse(saved));
+    } else {
+      const initialSessions = [
+        {
+          id: 1,
+          device: "Database Server PC",
+          user: "Admin",
+          active: true,
+          startTime: Date.now() - 1000 * 60 * 12,
+          transfers: [
+            { name: "forecasting2026.xlsx", size: "5MB", type: "spreadsheet", direction: "upload" },
+            { name: "quarterlyforecastingmeetingtemplate.pptx", size: "2MB", type: "image", direction: "download" },
+          ],
+        },
+        {
+          id: 2,
+          device: "Laptop",
+          user: "Aidan",
+          active: true,
+          startTime: Date.now() - 1000 * 60 * 3,
+          transfers: [
+            { name: "mixdown.mp3", size: "8MB", type: "audio", direction: "upload" },
+          ],
+        },
+        {
+          id: 3,
+          device: "Laptop",
+          user: "Bilal",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 45,
+          endTime: Date.now() - 1000 * 60 * 5,
+          transfers: [
+            { name: "project.zip", size: "20MB", type: "archive", direction: "upload" },
+          ],
+        },
+        {
+          id: 4,
+          device: "Office Desktop - Aidan",
+          user: "Aidan",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 120,
+          endTime: Date.now() - 1000 * 60 * 60,
+          transfers: [
+            { name: "report.pdf", size: "3MB", type: "document", direction: "download" },
+          ],
+        },
+        {
+          id: 5,
+          device: "Bilal's MacBook",
+          user: "admin",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 300,
+          endTime: Date.now() - 1000 * 60 * 250,
+          transfers: [],
+        },
+
+        {
+          id: 6,
+          device: "Accounting PC",
+          user: "Admin",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 60 * 24,
+          endTime: Date.now() - 1000 * 60 * 60 * 23,
+          transfers: [{ name: "budget.xlsx", size: "4MB", type: "spreadsheet", direction: "download" }],
+        },
+        {
+          id: 7,
+          device: "Aidan's Work Laptop",
+          user: "Aidan",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 60 * 26,
+          endTime: Date.now() - 1000 * 60 * 60 * 25,
+          transfers: [{ name: "demo.mp4", size: "25MB", type: "video", direction: "upload" }],
+        },
+        {
+          id: 8,
+          device: "Bilal's PC",
+          user: "Bilal",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 60 * 30,
+          endTime: Date.now() - 1000 * 60 * 60 * 29,
+          transfers: [],
+        },
+        {
+          id: 9,
+          device: "Office Desktop - Justin",
+          user: "Justin",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 60 * 36,
+          endTime: Date.now() - 1000 * 60 * 60 * 35,
+          transfers: [{ name: "presentation.pptx", size: "6MB", type: "document", direction: "upload" }],
+        },
+        {
+          id: 10,
+          device: "HR Laptop",
+          user: "Justin",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 60 * 48,
+          endTime: Date.now() - 1000 * 60 * 60 * 47,
+          transfers: [{ name: "employee_records.csv", size: "2MB", type: "data", direction: "download" }],
+        },
+        {
+          id: 11,
+          device: "Database Server PC",
+          user: "Admin",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 60 * 72,
+          endTime: Date.now() - 1000 * 60 * 60 * 70,
+          transfers: [{ name: "backup.sql", size: "50MB", type: "database", direction: "upload" }],
+        },
+        {
+          id: 12,
+          device: "Laptop",
+          user: "Aidan",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 60 * 80,
+          endTime: Date.now() - 1000 * 60 * 60 * 78,
+          transfers: [{ name: "render.wav", size: "12MB", type: "audio", direction: "upload" }],
+        },
+        {
+          id: 13,
+          device: "Bilal's MacBook",
+          user: "Bilal",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 60 * 96,
+          endTime: Date.now() - 1000 * 60 * 60 * 94,
+          transfers: [],
+        },
+        {
+          id: 14,
+          device: "Accounting PC",
+          user: "Aidan",
+          active: false,
+          startTime: Date.now() - 1000 * 60 * 60 * 120,
+          endTime: Date.now() - 1000 * 60 * 60 * 118,
+          transfers: [{ name: "tax_report.pdf", size: "3MB", type: "document", direction: "download" }],
+        },
+        {
+          id: 15,
+          device: "Aidan's Work Laptop",
+          user: "Aidan",
+          active: true,
+          startTime: Date.now() - 1000 * 60 * 10,
+          transfers: [{ name: "final_mix.wav", size: "15MB", type: "audio", direction: "upload" }],
+        },
+      ];
+
+      setSessions(initialSessions);
+      localStorage.setItem("sessions", JSON.stringify(initialSessions));
+    }
+
+    setIsLoaded(true);
   }, []);
 
-  // ⏱️ Live ticking
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("sessions", JSON.stringify(sessions));
+      window.dispatchEvent(new Event("sessionsUpdated"));
+    }
+  }, [sessions, isLoaded]);
+
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  if (!isLoaded) return null;
+
+  const sortedSessions = [...sessions].sort((a, b) => {
+    if (a.active && !b.active) return -1;
+    if (!a.active && b.active) return 1;
+    return b.startTime - a.startTime;
+  });
 
   const formatDuration = (startTime) => {
     const diff = Math.floor((now - startTime) / 1000);
@@ -46,48 +192,22 @@ export default function SessionsPage() {
     return `${mins}m ${secs.toString().padStart(2, "0")}s`;
   };
 
-  const activeCount = sessions.filter((s) => s.active).length;
-  const totalTransfers = sessions.reduce(
-    (sum, s) => sum + s.transfers.length,
-    0
-  );
+  const formatEnded = (startTime, endTime) => {
+    const diff = Math.floor((endTime - startTime) / 1000);
+    const mins = Math.floor(diff / 60);
+    const date = new Date(endTime).toLocaleString();
+    return `${mins}m • ${date}`;
+  };
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Session Monitor
-        </h1>
-        <p className="text-gray-500 text-sm">
-          Live remote activity stream
-        </p>
-      </div>
+      <h1 className="text-2xl font-semibold">Session Monitor</h1>
 
-      {/* METRICS */}
-      <div className="grid grid-cols-3 gap-4">
-        <MetricCard label="Active Sessions" value={activeCount} accent="green" />
-        <MetricCard label="Total Sessions" value={sessions.length} accent="blue" />
-        <MetricCard
-          label="Transfers"
-          value={totalTransfers}
-          accent="purple"
-          onClick={() => setSelectedSession("ALL")}
-        />
-      </div>
-
-      {/* SESSION STREAM */}
       <div className="bg-[#0b0f14] border border-white/5 rounded-xl p-4">
-        <p className="text-xs text-gray-500 uppercase mb-3">
-          Live Sessions
-        </p>
-
         <div className="divide-y divide-white/5">
-          {sessions.map((s) => (
-            <div
-              key={s.id}
-              className="flex justify-between items-center py-3 px-2 text-sm hover:bg-white/5 rounded-lg transition"
-            >
+          {sortedSessions.map((s) => (
+            <div key={s.id} className="flex justify-between items-center py-3 px-2 text-sm hover:bg-white/5 rounded-lg">
+              
               {/* LEFT */}
               <div>
                 <p className="text-gray-200">
@@ -98,50 +218,40 @@ export default function SessionsPage() {
                   <span className="font-mono">
                     {s.active
                       ? formatDuration(s.startTime)
-                      : s.duration}
+                      : formatEnded(s.startTime, s.endTime)}
                   </span>
 
-                  {/* 🟢 PULSE */}
                   {s.active && (
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-70"></span>
-                      <span className="relative rounded-full h-2 w-2 bg-green-400 shadow-[0_0_6px_#4ade80]"></span>
+                      <span className="relative rounded-full h-2 w-2 bg-green-400"></span>
                     </span>
                   )}
                 </div>
               </div>
 
               {/* RIGHT */}
-              <div className="flex items-center gap-4">
-                {/* STATUS */}
-                <span
-                  className={`text-xs ${
-                    s.active ? "text-green-400" : "text-gray-500"
-                  }`}
-                >
+              <div className="flex items-center gap-3">
+                <span className={`text-xs ${s.active ? "text-green-400" : "text-gray-500"}`}>
                   {s.active ? "ACTIVE" : "ENDED"}
                 </span>
 
-                {/* ACTIONS */}
+                {/* TRANSFER COUNT + ICON */}
                 <button
                   onClick={() => setSelectedSession(s)}
-                  className="text-xs px-2 py-1 rounded-md bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 transition"
+                  className="flex items-center gap-1 text-gray-400 hover:text-blue-400 text-sm"
                 >
-                  Inspect
+                  <span className="text-xs text-gray-500">
+                    {s.transfers.length}
+                  </span>
+                  📄
                 </button>
-
-                {s.active && (
-                  <button className="text-xs px-2 py-1 rounded-md bg-red-600/20 hover:bg-red-600/40 text-red-400 transition">
-                    Terminate
-                  </button>
-                )}
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* MODAL */}
       {selectedSession && (
         <TransferModal
           session={selectedSession}
@@ -153,75 +263,29 @@ export default function SessionsPage() {
   );
 }
 
-/* METRIC CARD */
-function MetricCard({ label, value, accent, onClick }) {
-  const colors = {
-    green: "text-green-400",
-    blue: "text-blue-400",
-    purple: "text-purple-400",
-  };
-
-  return (
-    <div
-      onClick={onClick}
-      className={`bg-[#0b0f14] border border-white/5 rounded-xl p-4 ${
-        onClick ? "cursor-pointer hover:bg-white/5 transition" : ""
-      }`}
-    >
-      <p className="text-xs text-gray-500 uppercase">{label}</p>
-      <p className={`text-2xl font-semibold mt-1 ${colors[accent]}`}>
-        {value}
-      </p>
-    </div>
-  );
-}
-
 /* MODAL */
-function TransferModal({ session, sessions, onClose }) {
-  const transfers =
-    session === "ALL"
-      ? sessions.flatMap((s) =>
-          s.transfers.map((t) => ({
-            ...t,
-            device: s.device,
-          }))
-        )
-      : session.transfers;
-
+function TransferModal({ session, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
       <div className="w-full max-w-xl bg-[#0b0f14] border border-white/10 rounded-xl p-5">
         
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between mb-4">
           <h2 className="text-sm uppercase text-gray-400">
-            Transfer Details
+            File Transfers
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-white">
-            ✕
-          </button>
+          <button onClick={onClose}>✕</button>
         </div>
 
-        <div className="space-y-2 max-h-80 overflow-auto text-sm">
-          {transfers.map((t, i) => (
-            <div
-              key={i}
-              className="flex justify-between items-center px-2 py-2 rounded-md hover:bg-white/5"
-            >
+        <div className="space-y-2">
+          {session.transfers.map((t, i) => (
+            <div key={i} className="flex justify-between text-sm">
               <div>
                 <p className="text-gray-200">{t.name}</p>
-                <p className="text-xs text-gray-500">
-                  {t.type} • {t.size}
-                </p>
+                <p className="text-xs text-gray-500">{t.type} • {t.size}</p>
               </div>
 
-              <span
-                className={`text-xs ${
-                  t.direction === "upload"
-                    ? "text-blue-400"
-                    : "text-purple-400"
-                }`}
-              >
-                {t.direction.toUpperCase()}
+              <span className="text-xs text-blue-400">
+                {t.direction}
               </span>
             </div>
           ))}

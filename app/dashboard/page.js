@@ -3,23 +3,74 @@ import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const [devices, setDevices] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [sessions, setSessions] = useState([]);
   const [connectionsData, setConnectionsData] = useState([]);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   useEffect(() => {
     fetch("/api/devices")
       .then((res) => res.json())
       .then((data) => setDevices(data));
-
-    setConnectionsData([
-      { day: "Mon", count: 5 },
-      { day: "Tue", count: 8 },
-      { day: "Wed", count: 3 },
-      { day: "Thu", count: 10 },
-      { day: "Fri", count: 6 },
-      { day: "Sat", count: 2 },
-      { day: "Sun", count: 4 },
-    ]);
   }, []);
+
+  useEffect(() => {
+    const loadUsers = () => {
+      const saved = localStorage.getItem("users");
+      setUsers(saved ? JSON.parse(saved) : []);
+    };
+
+    loadUsers();
+    window.addEventListener("storage", loadUsers);
+    window.addEventListener("focus", loadUsers);
+
+    return () => {
+      window.removeEventListener("storage", loadUsers);
+      window.removeEventListener("focus", loadUsers);
+    };
+  }, []);
+
+ 
+  useEffect(() => {
+    const loadSessions = () => {
+      const saved = localStorage.getItem("sessions");
+      setSessions(saved ? JSON.parse(saved) : []);
+    };
+
+    loadSessions();
+    window.addEventListener("storage", loadSessions);
+    window.addEventListener("focus", loadSessions);
+
+    return () => {
+      window.removeEventListener("storage", loadSessions);
+      window.removeEventListener("focus", loadSessions);
+    };
+  }, []);
+
+
+  useEffect(() => {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const last7Days = [...Array(7)].map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+
+      return {
+        label: days[d.getDay()],
+        date: d.toDateString(),
+        count: 0,
+      };
+    });
+
+    sessions.forEach((s) => {
+      const sessionDate = new Date(s.startTime).toDateString();
+      const day = last7Days.find((d) => d.date === sessionDate);
+      if (day) day.count += 1;
+    });
+
+    setConnectionsData(last7Days);
+  }, [sessions]);
+
 
   const connectToDevice = async (id) => {
     const res = await fetch("/api/connect", {
@@ -31,8 +82,10 @@ export default function Dashboard() {
     alert(`Connected!\nToken: ${data.token}`);
   };
 
+
   const onlineDevices = devices.filter((d) => d.isOnline).length;
-  const activeUsers = 4;
+  const activeUsers = users.length;
+  const activeSessions = sessions.filter((s) => s.active).length;
 
   return (
     <div className="space-y-6">
@@ -46,33 +99,22 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* METRICS GRID */}
-      <div className="grid grid-cols-3 gap-4">
-        <MetricCard
-          label="Active Devices"
-          value={onlineDevices}
-          accent="green"
-        />
-        <MetricCard
-          label="Total Devices"
-          value={devices.length}
-          accent="blue"
-        />
-        <MetricCard
-          label="Active Users"
-          value={activeUsers}
-          accent="purple"
-        />
+      {/* METRICS */}
+      <div className="grid grid-cols-4 gap-4">
+        <MetricCard label="Active Devices" value={onlineDevices} accent="green" />
+        <MetricCard label="Total Devices" value={devices.length} accent="blue" />
+        <MetricCard label="Users" value={activeUsers} accent="purple" />
+        <MetricCard label="Sessions" value={activeSessions} accent="blue" />
       </div>
 
       {/* GRAPH */}
       <div className="bg-[#0b0f14] border border-white/5 rounded-xl p-5">
         <h2 className="text-sm text-gray-400 mb-4 uppercase tracking-wide">
-          Connections (7d)
+          Sessions (7d)
         </h2>
 
         <div className="relative h-48 flex items-end gap-3">
-          {/* GRID LINES */}
+          {/* GRID */}
           {[...Array(4)].map((_, i) => (
             <div
               key={i}
@@ -82,22 +124,44 @@ export default function Dashboard() {
           ))}
 
           {connectionsData.map((d, i) => (
-            <div key={i} className="flex flex-col items-center flex-1">
+            <div
+              key={i}
+              className="relative flex flex-col items-center flex-1"
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              {/* TOOLTIP */}
+              {hoveredIndex === i && (
+                <div className="absolute -top-10 px-2 py-1 text-xs rounded-md bg-black text-white border border-white/10 shadow-lg whitespace-nowrap">
+                  {d.count} sessions
+                  <div className="text-[10px] text-gray-400 text-center">
+                    {d.label}
+                  </div>
+                </div>
+              )}
+
+              {/* BAR */}
               <div
-                className="w-full rounded-md bg-linear-to-t from-blue-600 to-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.4)] transition hover:scale-105"
+                className={`w-full rounded-md transition-all duration-200 ${
+                  hoveredIndex === i
+                    ? "bg-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.7)] scale-105"
+                    : "bg-gradient-to-t from-blue-600 to-blue-400"
+                }`}
                 style={{
-                  height: `${d.count * 12}px`,
+                  height: `${d.count * 14}px`,
                 }}
               />
+
+              {/* LABEL */}
               <span className="text-[10px] text-gray-500 mt-2">
-                {d.day}
+                {d.label}
               </span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* DEVICE TABLE */}
+      {/* DEVICES */}
       <div className="bg-[#0b0f14] border border-white/5 rounded-xl p-5">
         <h2 className="text-sm text-gray-400 mb-4 uppercase tracking-wide">
           Devices
@@ -109,7 +173,6 @@ export default function Dashboard() {
               key={d.id}
               className="flex justify-between items-center py-3 text-sm hover:bg-white/5 px-2 rounded-lg transition"
             >
-              {/* LEFT */}
               <div>
                 <p className="font-medium text-gray-200">{d.name}</p>
                 <p className="text-xs text-gray-500">
@@ -117,9 +180,7 @@ export default function Dashboard() {
                 </p>
               </div>
 
-              {/* RIGHT */}
               <div className="flex items-center gap-4">
-                {/* STATUS DOT */}
                 <div className="flex items-center gap-2">
                   <span
                     className={`h-2 w-2 rounded-full ${
@@ -133,7 +194,6 @@ export default function Dashboard() {
                   </span>
                 </div>
 
-                {/* ACTION */}
                 <button
                   onClick={() => connectToDevice(d.id)}
                   className="text-xs px-3 py-1 rounded-md bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 transition"
